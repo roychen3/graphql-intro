@@ -1,17 +1,22 @@
-import { ApolloProvider } from '@apollo/client'
+import { ApolloProvider } from '@apollo/client';
 
-import client from './GraphQlZero/apolloClient'
-import PostList from './GraphQlZero/PostList'
+import graphQlZeroClient from './GraphQlZero/apolloClient';
+import PostList from './GraphQlZero/PostList';
+// import localClient from './LocalServer/apolloClient';
+// import BookList from './LocalServer/BookList';
 
-import './App.css'
+import './App.css';
+
+const client = graphQlZeroClient;
+// const client = localClient;
 
 function App() {
   return (
     <ApolloProvider client={client}>
       <PostList />
+      {/* <BookList /> */}
     </ApolloProvider>
-
-  )
+  );
 }
 
-export default App
+export default App;
