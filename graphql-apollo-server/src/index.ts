@@ -1,5 +1,7 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
+import { UserAPI } from './user-api.js';
+
 
 // Define GraphQL schema
 
@@ -7,34 +9,40 @@ import { startStandaloneServer } from '@apollo/server/standalone';
 // that together define the "shape" of queries that are executed against
 // your data.
 const typeDefs = `#graphql
-  # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
-
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
+  type Company {
+    name: String
+    catchPhrase: String
+    bs: String
   }
 
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
+  type Geo {
+    lat: String
+    lng: String
+  }
+
+  type Address {
+    street: String
+    suite: String
+    city: String
+    zipcode: String
+    geo: Geo
+  }
+
+  type User {
+    id: Int
+    name: String
+    username: String
+    email: String
+    address: Address
+    phone: String
+    website: String
+    company: Company
+  }
+
   type Query {
-    books: [Book]
+    users: [User]
   }
 `;
-
-// Define data set
-
-const books = [
-  {
-    title: 'The Awakening',
-    author: 'Kate Chopin',
-  },
-  {
-    title: 'City of Glass',
-    author: 'Paul Auster',
-  },
-];
 
 // Define a resolver
 
@@ -42,15 +50,23 @@ const books = [
 // This resolver retrieves books from the "books" array above.
 const resolvers = {
   Query: {
-    books: () => books,
+    users: async (_, __, { dataSources }) => {
+      return dataSources.userAPI.getUsers();
+    },
   },
 };
+
+interface ContextValue {
+  dataSources: {
+    userAPI: UserAPI;
+  };
+}
 
 //Create an instance of ApolloServer
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
-const server = new ApolloServer({
+const server = new ApolloServer<ContextValue>({
   typeDefs,
   resolvers,
 });
@@ -61,6 +77,16 @@ const server = new ApolloServer({
 //  3. prepares your app to handle incoming requests
 const { url } = await startStandaloneServer(server, {
   listen: { port: 4000 },
+  context: async () => {
+    const { cache } = server;
+    return {
+      // We create new instances of our data sources with each request,
+      // passing in our server's cache.
+      dataSources: {
+        userAPI: new UserAPI({ cache }),
+      },
+    };
+  },
 });
 
 console.log(`🚀  Server ready at: ${url}`);

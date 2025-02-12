@@ -1,8 +1,10 @@
-export interface Book {
-  author: string;
-  title: string;
-}
 
-export interface Books {
-  books: Book[]
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+export type Users = {
+  users: User[]
 }

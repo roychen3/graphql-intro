@@ -1,12 +1,13 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Books } from './types';
+import { Users } from './types';
 
 const GET_POSTS = gql`
   query {
-    books {
-      author
-      title
+    users {
+      id
+      name
+      email
     }
   }
 `;
@@ -16,7 +17,7 @@ const BookList: React.FC = () => {
     loading,
     error,
     data,
-  } = useQuery<Books>(GET_POSTS, {
+  } = useQuery<Users>(GET_POSTS, {
     variables: { options: { paginate: { page: 1, limit: 10 } } },
   });
 
@@ -27,8 +28,8 @@ const BookList: React.FC = () => {
       <h2>Book List</h2>
 
       <ul>
-        {data?.books.map((post) => (
-          <li key={post.title}>
+        {data?.users.map((user) => (
+          <li key={user.id}>
             <div
               style={{
                 textAlign: 'left',
@@ -37,8 +38,8 @@ const BookList: React.FC = () => {
                 gap: '0.5rem'
               }}
             >
-              <span>{post.title} - </span>
-              <span style={{flexGrow: 1}}>{post.author}</span>
+              <span>{user.name} - </span>
+              <span style={{flexGrow: 1}}>{user.email}</span>
             </div>
           </li>
         ))}
